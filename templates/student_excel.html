@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيانات الطلاب</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.9/dist/sweetalert2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.9/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #5c2d91;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+            color: #333;
+            background-color: #f7f7f7;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+            transition: border 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border: 2px solid #4caf50;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #5c2d91;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5c2d91;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>قم برفع ملف بيانات الطلاب</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="excel_file" required>
+            <button type="submit">رفع</button>
+        </form>
+
+        <div class="footer">
+            <p></p>
+        </div>
+
+        {% if message %}
+        <script>
+            // Show success SweetAlert popup
+            Swal.fire({
+                icon: 'success',
+                title: 'تم رفع الملف بنجاح',
+                text: '{{ message }}',
+                confirmButtonText: 'حسناً'
+            });
+        </script>
+    {% endif %}
+    </div>
+
+
+    <script type="text/javascript">
+        let timer;
+        const TIMEOUT_DURATION = 60000; // 1 minute in milliseconds (60,000ms)
+    
+        function resetSessionTimeout() {
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+                window.location.href = "/logout/";  // Redirect to logout URL after 1 minute of inactivity
+            }, TIMEOUT_DURATION);
+        }
+    
+        // Reset timer on any user interaction
+        window.onload = resetSessionTimeout;
+        document.onmousemove = resetSessionTimeout;
+        document.onkeypress = resetSessionTimeout;
+        document.onclick = resetSessionTimeout;
+        document.onscroll = resetSessionTimeout;
+    
+        // To prevent back navigation after the session expires
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.go(1);
+        };
+    </script>
+
+
+</body>
+
+</html>

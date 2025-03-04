@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #5c2d91;
+            color: #fff;
+            direction: rtl; /* Right-to-left direction */
+        }
+        .container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #5c2d91;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px 0;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #5c2d91;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #4a1d7d;
+        }
+        .register-btn {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .register-btn a {
+            color: #5c2d91;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .register-btn a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>تسجيل الدخول</h1>
+
+        <!-- Login Form -->
+        <form method="POST" action="/login/">
+            {% csrf_token %}
+            <label for="username">اسم المستخدم:</label>
+            <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required>
+            
+            <label for="password">كلمة المرور:</label>
+            <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+            
+            <button type="submit">تسجيل الدخول</button>
+        </form>
+
+        <!-- Register Link -->
+        <!-- <div class="register-btn">
+            <p>ليس لديك حساب؟ <a href="/register/"> تسجيل حساب جديد؟؟</a></p>
+        </div> -->
+
+        <!-- Display error message if any -->
+        {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

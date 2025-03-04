@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصفحة الرئيسية</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #5c2d91;
+            color: #fff;
+            direction: rtl; /* Right-to-left direction */
+        }
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #5c2d91;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .btn-container a {
+            display: inline-block;
+            text-align: center;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #5c2d91;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-container a:hover {
+            background-color: #4a1d7d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>مرحبا بك في نظام نتائج الطلاب</h1>
+
+        <div class="btn-container">
+            <!-- Button for Student -->
+            <a href="/student-scores/">عرض نتائج الطالب</a>
+            
+            <!-- Button for Admin -->
+            <a href="/import-student-scores/">لوحة التحكم للإدارة</a>
+        </div>
+    </div>
+</body>
+</html>
