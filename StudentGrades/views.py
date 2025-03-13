@@ -89,11 +89,11 @@ def import_student_scores(request):
     return render(request, 'student_excel.html')
 
 
-
 def student_score_view(request):
     score_data = None
-    student_name = None  # Initialize student_name to avoid errors
+    student_name = None  
     student_id = None
+    student_percentage = None  
 
     if request.method == 'GET':
         national_id = request.GET.get('national_id', None)
@@ -102,21 +102,35 @@ def student_score_view(request):
             try:
                 # Find the student by their national ID
                 student = Student.objects.get(national_no=national_id)
-                student_name = student.name  # Store student name
+                student_name = student.name  
                 student_id = student.national_no
+
                 # Get all subjects and corresponding scores for the student
                 scores = Score.objects.filter(student=student)
 
-                # Prepare a dictionary to display subject names, scores, and max scores
-                score_data = {
-                    score.subject.name: {
+                # Prepare dictionary to display subject names, scores, and max scores
+                total_score = 0
+                max_total_score = 0
+                score_data = {}
+
+                for score in scores:
+                    score_data[score.subject.name] = {
                         'score': score.score,
-                        'max_score': score.subject.max_score  # Include max score
+                        'max_score': score.subject.max_score
                     }
-                    for score in scores
-                }
+                    total_score += score.score  # Sum actual scores
+                    max_total_score += score.subject.max_score  # Sum max scores
+
+                # Calculate percentage
+                if max_total_score > 0:
+                    student_percentage = (total_score / max_total_score) * 100
 
             except Student.DoesNotExist:
                 score_data = "Student not found with the provided National ID."
         
-    return render(request, 'student_score.html', {'score_data': score_data, 'student_name': student_name,'student_id':student_id})
+    return render(request, 'student_score.html', {
+        'score_data': score_data,
+        'student_name': student_name,
+        'student_id': student_id,
+        'student_percentage': student_percentage  # Send percentage to template
+    })

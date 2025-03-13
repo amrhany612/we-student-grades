@@ -83,6 +83,13 @@
                 <p class="error-message">{{ score_data }}</p>
             {% else %}
                 <h2>اسم الطالب : {{ student_name }}</h2>
+                {% if student_percentage is not None %}
+                    <h3>النسبة المئوية: 
+                        <span style="color: green; font-weight: bold;">{{ student_percentage|floatformat:2 }}%</span>
+                    </h3>
+                {% else %}
+                    <h3>لم يتم حساب النسبة المئوية بعد.</h3>
+                {% endif %}
                 <h4>الرقم القومي : {{ student_id }}</h4>
 
                 <table class="score-table">
