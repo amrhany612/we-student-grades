@@ -93,6 +93,7 @@
                         </tr> -->
                         <tr>
                             <th>المادة</th>
+                            <th>درجة المادة</th>
                             <th>الدرجة</th>
                         </tr>
                     </thead>
@@ -101,7 +102,10 @@
                         {% for subject, data in score_data.items %}
                         <tr>
                             <td>{{ subject }}</td>
-                            <td>{{ data.score }} / {{ data.max_score }}</td>
+                            <td style="background-color: #4CAF50; color: white; font-weight: bold; text-align: center;">
+                                {{ data.max_score }}
+                            </td>
+                            <td>{{ data.score }} </td>
                         </tr>
                         {% endfor %}
                     </tbody>
