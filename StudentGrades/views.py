@@ -100,6 +100,7 @@ def import_student_scores(request):
 def student_score_view(request):
     score_data = None
     student_name = None  # Initialize student_name to avoid errors
+    student_id = None
     
     if request.method == 'GET':
         national_id = request.GET.get('national_id', None)
