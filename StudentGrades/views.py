@@ -17,11 +17,6 @@ def import_student_scores(request):
 
         # Start a transaction to ensure data consistency
         with transaction.atomic():
-            # Clear all data before importing new data
-            Score.objects.all().delete()
-            Student.objects.all().delete()
-            Subject.objects.all().delete()
-
             # Load the workbook
             wb = openpyxl.load_workbook(excel_file)
             sheet = wb.active
@@ -63,7 +58,6 @@ def import_student_scores(request):
                 national_id, full_name, arabic_score, english_score, math_score, physics_score, arts_score, practical_score, total_score, religion_score, national_education_score, *rest = row
                 
 
-                print(full_name)
                 # Avoid creating student repeatedly. If student exists, use it
                 student, created = Student.objects.get_or_create(
                     national_no=national_id,
