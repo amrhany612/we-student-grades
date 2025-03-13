@@ -82,19 +82,27 @@
             {% if score_data == "الطالب غير موجود برقم القومي المدخل." %}
                 <p class="error-message">{{ score_data }}</p>
             {% else %}
+                <h2>اسم الطالب : {{ student_name }}</h2>
+                <h4>الرقم القومي : {{ student_id }}</h4>
+
                 <table class="score-table">
                     <thead>
+                        <!-- <tr>
+                            <th>اسم الطالب</th>
+                            <th>{{ student_name }}</th>
+                        </tr> -->
                         <tr>
                             <th>المادة</th>
                             <th>الدرجة</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for subject, score in score_data.items %}
-                            <tr>
-                                <td>{{ subject }}</td>
-                                <td>{{ score }}</td>
-                            </tr>
+
+                        {% for subject, data in score_data.items %}
+                        <tr>
+                            <td>{{ subject }}</td>
+                            <td>{{ data.score }} / {{ data.max_score }}</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
