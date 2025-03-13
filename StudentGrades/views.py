@@ -34,7 +34,6 @@ def import_student_scores(request):
                 ("PHYSICS", 8),
                 ("تخصص نظري", 65),
                 ("تخصص عملي", 65),
-
                 ("المجموع", 225),
                 ("التربية الدينية", 10),
                 ("التربية الوطنية", 10)
@@ -76,7 +75,7 @@ def import_student_scores(request):
                     ("اللغة الإنجليزية", english_score),
                     ("MATH", math_score),
                     ("PHYSICS", physics_score),
-                    (" تخصص نظري", arts_score),
+                    ("تخصص نظري", arts_score),
                     ("تخصص عملي",practical_score),
                     ("المجموع", total_score),
                     ("التربية الدينية", religion_score),
@@ -101,7 +100,7 @@ def student_score_view(request):
     score_data = None
     student_name = None  # Initialize student_name to avoid errors
     student_id = None
-    
+
     if request.method == 'GET':
         national_id = request.GET.get('national_id', None)
         
