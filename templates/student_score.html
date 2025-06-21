@@ -101,8 +101,11 @@
         <h3>
             {% if fail_count >= 3 %}
                 <span style="color: red; font-weight: bold;">راسب (عدد المواد الراسبة: {{ fail_count }})</span>
+            {%elif fail_count == 0 %}
+                <span style="color: green; font-weight: bold;">ناجح ومنقول</span>
+
             {% else %}
-                <span style="color: green; font-weight: bold;">ناجح (عدد المواد الراسبة: {{ fail_count }})</span>
+                <span style="color: rgb(154, 159, 1); font-weight: bold;">دور تاني (عدد المواد الراسبة: {{ fail_count }})</span>
             {% endif %}
         </h3>
 
