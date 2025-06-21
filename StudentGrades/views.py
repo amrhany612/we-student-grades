@@ -15,71 +15,81 @@ def import_student_scores(request):
     if request.method == 'POST' and request.FILES.get('excel_file'):
         excel_file = request.FILES['excel_file']
 
-        # Start a transaction to ensure data consistency
         with transaction.atomic():
-            # Load the workbook
             wb = openpyxl.load_workbook(excel_file)
             sheet = wb.active
 
-            # Define subjects to create if they don't already exist
             subjects_data = [
-                ("اللغة العربية", 25),
-                ("اللغة الإنجليزية", 25),
-                ("MATH", 25),
-                ("PHYSICS", 20),
-                ("تخصص نظري", 65),
-                ("تخصص عملي", 65),
-                ("المجموع", 225),
-                ("التربية الدينية", 10),
-                ("التربية الوطنية", 10)
+                ("اللغة العربية", 50),
+                ("اللغة الإنجليزية", 50),
+                ("MATH", 50),
+                ("PHYSICS", 40),
+                ("تخصص نظري", 130),
+                ("تخصص عملي", 130),
+                ("التدريب الميداني", 100),
+                ("المجموع", 550),
+                ("التربية الدينية", 20),
+                ("التربية الوطنية", 20)
             ]
-            
-            # Fetch existing subjects to avoid redundant DB hits
+
             existing_subjects = {subject.name: subject for subject in Subject.objects.all()}
 
-            # Create missing subjects if they don't exist
             subjects_to_create = [
                 Subject(name=subject_name, max_score=max_score)
                 for subject_name, max_score in subjects_data
                 if subject_name not in existing_subjects
             ]
-            
+
             if subjects_to_create:
                 Subject.objects.bulk_create(subjects_to_create)
 
-            # After creation, update the existing subject map with newly created ones
-            existing_subjects.update({subject.name: subject for subject in Subject.objects.filter(name__in=[subj[0] for subj in subjects_data])})
+            existing_subjects.update({
+                subject.name: subject
+                for subject in Subject.objects.filter(name__in=[subj[0] for subj in subjects_data])
+            })
 
-            students_data = []
             scores_data = []
 
-            # Iterate through rows and prepare data
-            for row in sheet.iter_rows(min_row=2, max_row=89,values_only=True):
-                national_id, full_name, arabic_score, english_score, math_score, physics_score, arts_score, practical_score, total_score, religion_score, national_education_score, *rest = row
-                
+            for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, values_only=True):
+                try:
+                    national_id = row[0]
+                    full_name = row[1]
 
-                # Avoid creating student repeatedly. If student exists, use it
-                student, created = Student.objects.get_or_create(
-                    national_no=national_id,
-                    defaults={'name': full_name}
-                )
+                    subjects_scores = [
+                        ("اللغة العربية", row[2]),
+                        ("اللغة الإنجليزية", row[3]),
+                        ("MATH", row[4]),
+                        ("PHYSICS", row[5]),
+                        ("تخصص نظري", row[6]),
+                        ("تخصص عملي", row[7]),
+                        ("التدريب الميداني", row[8]),
+                        ("المجموع", row[9]),
+                        ("التربية الدينية", row[10]),
+                        ("التربية الوطنية", row[11])
+                    ]
 
-                subjects_scores = [
-                    ("اللغة العربية", arabic_score),
-                    ("اللغة الإنجليزية", english_score),
-                    ("MATH", math_score),
-                    ("PHYSICS", physics_score),
-                    ("تخصص نظري", arts_score),
-                    ("تخصص عملي",practical_score),
-                    ("المجموع", total_score),
-                    ("التربية الدينية", religion_score),
-                    ("التربية الوطنية", national_education_score)
-                ]
+                    if not national_id or not full_name:
+                        continue  # تخطي الصفوف غير الكاملة
 
-                for subject_name, score in subjects_scores:
-                    subject = existing_subjects.get(subject_name)
-                    if subject:
-                        scores_data.append(Score(student=student, subject=subject, score=score))
+                    student, created = Student.objects.get_or_create(
+                        national_no=national_id,
+                        defaults={'name': full_name}
+                    )
+
+                    for subject_name, score in subjects_scores:
+                        subject = existing_subjects.get(subject_name)
+                        try:
+                            score = float(score)
+                        except (TypeError, ValueError):
+                            continue  # تجاهل القيمة إذا لم تكن رقمية
+
+                        if subject:
+                            scores_data.append(Score(student=student, subject=subject, score=score))
+
+                except Exception as e:
+                    print("خطأ في الصف:", row)
+                    print("الخطأ:", e)
+                    continue
 
             if scores_data:
                 Score.objects.bulk_create(scores_data)
@@ -88,49 +98,57 @@ def import_student_scores(request):
 
     return render(request, 'student_excel.html')
 
-
 def student_score_view(request):
     score_data = None
     student_name = None  
     student_id = None
     student_percentage = None  
+    fail_count = 0
 
     if request.method == 'GET':
         national_id = request.GET.get('national_id', None)
         
         if national_id:
             try:
-                # Find the student by their national ID
                 student = Student.objects.get(national_no=national_id)
                 student_name = student.name  
                 student_id = student.national_no
 
-                # Get all subjects and corresponding scores for the student
-                scores = Score.objects.filter(student=student)
+                scores = Score.objects.filter(student=student).select_related('subject')
 
-                # Prepare dictionary to display subject names, scores, and max scores
                 total_score = 0
                 max_total_score = 0
                 score_data = {}
 
                 for score in scores:
+                    subject_max = score.subject.max_score
+                    percentage = (score.score / subject_max) * 100 if subject_max > 0 else 0
+                    failed = percentage < 50
+
+                    if failed:
+                        fail_count += 1
+                    
                     score_data[score.subject.name] = {
                         'score': score.score,
-                        'max_score': score.subject.max_score
+                        'max_score': subject_max,
+                        'percentage': percentage,
+                        'failed': failed
                     }
-                    total_score += score.score  # Sum actual scores
-                    max_total_score += score.subject.max_score  # Sum max scores
 
-                # Calculate percentage
+                    total_score += score.score
+                    max_total_score += subject_max
+
                 if max_total_score > 0:
                     student_percentage = (total_score / max_total_score) * 100
 
             except Student.DoesNotExist:
-                score_data = "Student not found with the provided National ID."
+                score_data = "الطالب غير موجود برقم القومي المدخل."
         
     return render(request, 'student_score.html', {
         'score_data': score_data,
         'student_name': student_name,
         'student_id': student_id,
-        'student_percentage': student_percentage  # Send percentage to template
+        'student_percentage': student_percentage,
+        'fail_count': fail_count
     })
+
