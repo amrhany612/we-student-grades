@@ -78,47 +78,61 @@
         </form>
 
         <!-- Display scores or error message -->
-        {% if score_data %}
-            {% if score_data == "الطالب غير موجود برقم القومي المدخل." %}
-                <p class="error-message">{{ score_data }}</p>
-            {% else %}
-                <h2>اسم الطالب : {{ student_name }}</h2>
-                {% if student_percentage is not None %}
-                    <h3>النسبة المئوية: 
-                        <span style="color: green; font-weight: bold;">{{ student_percentage|floatformat:2 }}%</span>
-                    </h3>
+      {% if score_data %}
+    {% if score_data == "الطالب غير موجود برقم القومي المدخل." %}
+        <p class="error-message">{{ score_data }}</p>
+    {% else %}
+        <h2>اسم الطالب : {{ student_name }}</h2>
+
+        {% if student_percentage is not None %}
+            <h3>النسبة المئوية:
+                {% if student_percentage < 50 %}
+                    <span style="color: red; font-weight: bold;">
+                        {{ student_percentage|floatformat:2 }}% - راسب
+                    </span>
                 {% else %}
-                    <h3>لم يتم حساب النسبة المئوية بعد.</h3>
+                    <span style="color: green; font-weight: bold;">
+                        {{ student_percentage|floatformat:2 }}%
+                    </span>
                 {% endif %}
-                <h4>الرقم القومي : {{ student_id }}</h4>
-
-                <table class="score-table">
-                    <thead>
-                        <!-- <tr>
-                            <th>اسم الطالب</th>
-                            <th>{{ student_name }}</th>
-                        </tr> -->
-                        <tr>
-                            <th>المادة</th>
-                            <th>درجة المادة</th>
-                            <th>درجة الطالب</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        {% for subject, data in score_data.items %}
-                        <tr>
-                            <td>{{ subject }}</td>
-                            <td style="background-color: #4CAF50; color: white; font-weight: bold; text-align: center;">
-                                {{ data.max_score }}
-                            </td>
-                            <td>{{ data.score }} </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+            </h3>
         {% endif %}
+
+        <h3>
+            {% if fail_count >= 3 %}
+                <span style="color: red; font-weight: bold;">راسب (عدد المواد الراسبة: {{ fail_count }})</span>
+            {% else %}
+                <span style="color: green; font-weight: bold;">ناجح (عدد المواد الراسبة: {{ fail_count }})</span>
+            {% endif %}
+        </h3>
+
+        <h4>الرقم القومي : {{ student_id }}</h4>
+
+        <table class="score-table">
+            <thead>
+                <tr>
+                    <th>المادة</th>
+                    <th>درجة المادة</th>
+                    <th>درجة الطالب</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject, data in score_data.items %}
+                    <tr>
+                        <td>{{ subject }}</td>
+                        <td style="background-color: #4CAF50; color: white; font-weight: bold;">
+                            {{ data.max_score }}
+                        </td>
+                        <td style="color: {% if data.failed %}red{% else %}black{% endif %}; font-weight: bold;">
+                            {{ data.score }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
     </div>
 </body>
 </html>
